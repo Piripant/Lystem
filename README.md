@@ -14,7 +14,7 @@ cargo run --release -- [ARGS]
 
 There are two required parameters, the input configuration, and the number of generations to simulate
 ```
-cargo run --release configs/maze.yml 3
+cargo run --release -- configs/maze.yml 3
 ```
 This will render the images of the 3rd generation of maze.yml, interpreted by the turtle as specified in the file.
 
