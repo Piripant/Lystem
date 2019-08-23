@@ -1,0 +1,17 @@
+axiom: F+F+F
+
+start_state:
+  'color_r': 255
+  'step': 10
+  'turning_angle': 120
+
+rules:
+  F: F-F+F
+
+commands:
+  'F':
+    - forward
+  '+':
+    - clockwise
+  '-': 
+    - counterclockwise

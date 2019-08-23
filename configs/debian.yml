@@ -1,0 +1,23 @@
+# run this with 5 generations to get the debian logo
+# or with 9 generation to get a double debian logo
+
+axiom: F
+
+start_state:
+  'color_r': 215
+  'color_g': 7
+  'color_b': 81
+
+  'step': 15
+  'rotation': -130
+  'turning_angle': 0
+
+rules:
+  F: F+F
+
+commands:
+  'F':
+    - forward
+  '+':
+    - add turning_angle 1
+    - clockwise

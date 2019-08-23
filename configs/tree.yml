@@ -1,0 +1,27 @@
+axiom: X
+
+rules:
+  'F': FF
+  'X': F-[[X]+X]+F[+FX]-X
+
+start_state:
+  'color_r': 255
+  'color_g': 175
+  'turning_angle': 22.5
+  'step': 5
+  'rotation': 270
+
+commands:
+  'F':
+    - forward
+    - add color_r -1
+  '[':
+    - push_stack
+  ']':
+    - pop_stack
+    # by doing this we are making the branches lean like they have wind blowing
+    - add turning_angle 4
+  '+':
+    - clockwise
+  '-': 
+    - counterclockwise

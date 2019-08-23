@@ -1,0 +1,23 @@
+axiom: '-YF'
+
+start_state:
+  'color_r': 255
+  'color_b': 127
+  'step': 5
+  'turning_angle': 90.0
+
+rules:
+  'X': 'XFX-YF-YF+FX+FX-YF-YFFX+YF+FXFXYF-FX+YF+FXFX+YF-FXYF-YF-FX+FX+YFYF-'
+  'Y': '+FXFX-YF-YF+FX+FXYF+FX-YFYF-FX-YF+FXYFYF-FX-YFFX+FX+YF-YF-FX+FX+YFY'
+
+commands:
+  'F':
+    - forward
+  '+':
+    - clockwise
+    - set color_r 127
+    - set color_b 255
+  '-': 
+    - counterclockwise
+    - set color_r 255
+    - set color_b 127

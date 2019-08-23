@@ -1,0 +1,21 @@
+axiom: F+F+F+F
+
+start_state:
+  'color_r': 0
+  'color_g': 0
+  'color_b': 1
+  'step': 1
+
+rules:
+  'F': FF+F-F+F+FF
+
+commands:
+  'F':
+    - forward
+    - multiply color_b 3
+  '+':
+    - clockwise
+    - set step 10
+  '-': 
+    - counterclockwise
+    - set step 2
