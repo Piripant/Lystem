@@ -1,5 +1,5 @@
 [package]
-name = "lsystem"
+name = "lystem"
 version = "0.1.0"
 authors = ["Piripant <piripant@gmail.com>"]
 edition = "2018"

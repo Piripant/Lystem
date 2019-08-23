@@ -19,13 +19,13 @@ struct Config {
 }
 
 fn main() {
-    let matches = App::new("LSystem")
+    let matches = App::new("Lystem")
         .version("0.1")
         .author("Piripant <piripant@gmail.com>")
-        .about("Simulates and draws LSystems")
+        .about("Simulates and draws L-Systems")
         .arg(
             Arg::with_name("CONFIG")
-                .help("Sets the lsystem config file to use")
+                .help("Sets the L-system config file to use")
                 .required(true)
                 .index(1),
         )
@@ -55,7 +55,7 @@ fn main() {
     let config_file = File::open(config_name).unwrap();
     let config: Config = serde_yaml::from_reader(config_file).unwrap();
 
-    // Retrive all the lsystem rules and axiom
+    // Retrive all the L-system rules and axiom
     let mut rules = lsystem::SystemRules::new();
     for (to, from) in config.rules {
         rules.add_rule(to as u8, from.as_bytes().to_vec());
