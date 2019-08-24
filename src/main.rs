@@ -1,3 +1,12 @@
+// to render: ffmpeg -r 60 -y -i images/out%d.png output.mp4
+// to resize: -vf scale=iw*2:ih*2 -sws_flags neighbor
+
+// TODO:
+// Invisible forward
+// Draw point
+// Make the user choose the number of still frames at the end of the video with a cli parameter
+// Maybe use macros to autogenerate &str -> Variable -> &mut self.xyz
+
 mod lsystem;
 mod scripting;
 mod turtle;
@@ -10,6 +19,7 @@ use std::fs::File;
 
 type Vector2f = Vector2<f32>;
 
+/// Parses the config yml files
 #[derive(Debug, PartialEq, Deserialize)]
 struct Config {
     axiom: String,
@@ -67,8 +77,8 @@ fn main() {
     // Retrive the turtle settings / commands
     let mut pen = turtle::PenState::new();
     pen.load_config(&config.start_state).unwrap();
-    let mut drawer = turtle::Drawer::new(pen);
-    drawer.load_config(&config.commands).unwrap();
+    let mut turtle = turtle::Turtle::new(pen);
+    turtle.load_config(&config.commands).unwrap();
 
     // Start the Simulation
     let mut strokes = vec![];
@@ -80,14 +90,11 @@ fn main() {
 
     while let Some(symbols) = system_generations.iterate_over(&rules) {
         for symbol in symbols {
-            let mut new_strokes = drawer.update(symbol);
+            let mut new_strokes = turtle.update(symbol);
             if !new_strokes.is_empty() {
+                // Find the global max/min to later generate
+                // An image of the right size
                 for (from, to, _) in &mut new_strokes {
-                    from.x = from.x.round();
-                    from.y = from.y.round();
-                    to.x = to.x.round();
-                    to.y = to.y.round();
-
                     xmin = xmin.min(from.x).min(to.x);
                     ymin = ymin.min(from.y).min(to.y);
 
@@ -103,6 +110,8 @@ fn main() {
     // Start the drawing
     let last_frame = matches.is_present("last_frame");
 
+    // We will use min to make the coordinates all positive
+    // And in this way transform them to image pixel coordinates
     let min = Vector2f::new(xmin, ymin);
     let mut img = image::ImageBuffer::new((xmax - xmin) as u32 + 1, (ymax - ymin) as u32 + 1);
 
@@ -125,6 +134,8 @@ fn main() {
         }
     }
 
+    // Draw 240 still frames at the end of the video
+    // Or just one if the user requested only the last frame
     let still_frames = if last_frame { 1 } else { 240 };
     for i in 0..still_frames {
         img.save(format!("images/out{}.png", strokes.len() / step + i))
@@ -143,7 +154,7 @@ type Vector2i = Vector2<i32>;
 fn draw_line(img: &mut image::RgbImage, color: [u8; 3], from: Vector2f, to: Vector2f) {
     let mut from = Vector2i::new(from.x as i32, from.y as i32);
     let to = Vector2i::new(to.x as i32, to.y as i32);
-    
+
     let dx = (to.x - from.x).abs();
     let sx = if from.x < to.x { 1 } else { -1 };
     let dy = -(to.y - from.y).abs();
@@ -153,8 +164,10 @@ fn draw_line(img: &mut image::RgbImage, color: [u8; 3], from: Vector2f, to: Vect
     loop {
         img.put_pixel(from.x as u32, from.y as u32, image::Rgb(color));
 
-        if from.x == to.x && from.y == to.y { break; }
-        let e2 = 2*err;
+        if from.x == to.x && from.y == to.y {
+            break;
+        }
+        let e2 = 2 * err;
         if e2 >= dy {
             err += dy;
             from.x += sx;
@@ -165,11 +178,3 @@ fn draw_line(img: &mut image::RgbImage, color: [u8; 3], from: Vector2f, to: Vect
         }
     }
 }
-
-// ffmpeg -r 60 -y -i images/out%d.png test.mp4
-// to resize: -vf scale=iw*2:ih*2 -sws_flags neighbor
-
-// TODO:
-// Invisible forward
-// Draw point
-// Maybe use macros to autogenerate string -> Variable -> self.xyz

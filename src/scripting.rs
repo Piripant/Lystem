@@ -1,6 +1,7 @@
 use std::str::FromStr;
 
-// Let's us assume we can always convert a ScriptVariable to a f64
+// This trait is implemented for types that have to interact with the config files
+// Scripts for now only use floating point numbers
 // from_num() cannot return Self because then
 // we wouldn't be able to make ScriptVariable into a trait object
 pub trait ScriptVariable {
@@ -13,7 +14,7 @@ impl ScriptVariable for u8 {
         *self = ((value + 256.0) % 256.0) as u8;
     }
     fn to_num(&self) -> f64 {
-        *self as f64
+        f64::from(*self)
     }
 }
 
@@ -22,7 +23,7 @@ impl ScriptVariable for f32 {
         *self = value as f32;
     }
     fn to_num(&self) -> f64 {
-        *self as f64
+        f64::from(*self)
     }
 }
 
@@ -55,6 +56,7 @@ pub enum Variable {
     Step,
 }
 
+// Parsing is made with Rust std FromStr trait
 impl FromStr for Variable {
     type Err = ParseError;
     fn from_str(text: &str) -> Result<Self, Self::Err> {
@@ -78,10 +80,13 @@ pub enum Token {
     Number(f64),
 }
 
+// Parsing is made with Rust std FromStr trait
 impl FromStr for Token {
     type Err = ParseError;
     fn from_str(text: &str) -> Result<Self, Self::Err> {
-        Ok(match text.parse() {
+        // Try to parse the number as a f64
+        // And if it fails try to parse it as a Variable
+        Ok(match text.parse::<f64>() {
             Ok(n) => Token::Number(n),
             Err(_) => Token::Variable(text.parse()?),
         })
@@ -101,6 +106,7 @@ pub enum Command {
     Set(Variable, Token),
 }
 
+// Parsing is made with Rust std FromStr trait
 impl FromStr for Command {
     type Err = ParseError;
     fn from_str(text: &str) -> Result<Self, Self::Err> {

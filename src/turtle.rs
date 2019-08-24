@@ -2,14 +2,16 @@ use crate::scripting::{Command, ParseError, ScriptVariable, Token, Variable};
 use crate::Vector2f;
 use std::collections::HashMap;
 
+/// Used to store the turtle state
+/// Does not interpret any commands on it's own
 #[derive(Clone, Debug, PartialEq)]
 pub struct PenState {
-    pub position: Vector2f,
-    pub color: [u8; 3],
-    pub rotation: f32,
+    position: Vector2f,
+    color: [u8; 3],
+    rotation: f32,
 
-    pub step: f32,
-    pub turning_angle: f32,
+    step: f32,
+    turning_angle: f32,
 }
 
 impl PenState {
@@ -32,16 +34,17 @@ impl PenState {
         Ok(())
     }
 
-    pub fn set_rotation(&mut self, new_rotation: f32) {
+    fn set_rotation(&mut self, new_rotation: f32) {
         self.rotation = (new_rotation + 360.0) % 360.0;
     }
 
-    pub fn get_direction(&self) -> Vector2f {
+    fn get_direction(&self) -> Vector2f {
         let x = self.rotation.to_radians().cos();
         let y = self.rotation.to_radians().sin();
         Vector2f::new(x * self.step, y * self.step)
     }
 
+    /// Maps the Variable enumumerator to actual variables
     fn get_variable(&mut self, var: Variable) -> &mut dyn ScriptVariable {
         match var {
             Variable::Rotation => &mut self.rotation,
@@ -52,17 +55,29 @@ impl PenState {
             Variable::Step => &mut self.step,
         }
     }
+
+    /// Returns the value of a Token as number
+    /// If the Token contains a variable, it gets its value as a number
+    fn get_token_num(&mut self, token: &Token) -> f64 {
+        match token {
+            Token::Number(n) => *n,
+            Token::Variable(var) => self.get_variable(*var).to_num(),
+        }
+    }
 }
 
-pub struct Drawer {
-    pub pen: PenState,
-    pub stack: Vec<PenState>,
-    pub commands: HashMap<u8, Vec<Command>>,
+/// Responsible of moving interpreting the commands
+/// And binding together the scripting and L-System
+/// Only tells the strokes and colors to use, does not draw to any image
+pub struct Turtle {
+    pen: PenState,
+    stack: Vec<PenState>,
+    commands: HashMap<u8, Vec<Command>>,
 }
 
-impl Drawer {
-    pub fn new(pen: PenState) -> Drawer {
-        Drawer {
+impl Turtle {
+    pub fn new(pen: PenState) -> Turtle {
+        Turtle {
             pen,
             stack: Vec::new(),
             commands: HashMap::new(),
@@ -79,8 +94,7 @@ impl Drawer {
         for command in commands {
             match command {
                 Command::Forward => {
-                    let dir = self.pen.get_direction();
-                    let n_pos = self.pen.position + dir;
+                    let n_pos = self.pen.position + self.pen.get_direction();
                     strokes.push((self.pen.position, n_pos, self.pen.color));
                     self.pen.position = n_pos;
                 }
@@ -99,30 +113,20 @@ impl Drawer {
                     self.pen = self
                         .stack
                         .pop()
-                        .expect("A stack pop was invoked when there are no states on the stack");
+                        .expect("A stack pop was invoked but there are no states on the stack");
                 }
                 Command::Add(x, y) => {
-                    let b = match y {
-                        Token::Number(n) => *n,
-                        Token::Variable(var) => self.pen.get_variable(*var).to_num(),
-                    };
-
+                    let b = self.pen.get_token_num(y);
                     let a = self.pen.get_variable(*x);
                     a.from_num(a.to_num() + b);
                 }
                 Command::Multiply(x, y) => {
-                    let b = match y {
-                        Token::Number(n) => *n,
-                        Token::Variable(var) => self.pen.get_variable(*var).to_num(),
-                    };
+                    let b = self.pen.get_token_num(y);
                     let a = self.pen.get_variable(*x);
                     a.from_num(a.to_num() * b);
                 }
                 Command::Set(x, y) => {
-                    let b = match y {
-                        Token::Number(n) => *n,
-                        Token::Variable(var) => self.pen.get_variable(*var).to_num(),
-                    };
+                    let b = self.pen.get_token_num(y);
                     let a = self.pen.get_variable(*x);
                     a.from_num(b);
                 }
