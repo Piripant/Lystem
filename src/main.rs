@@ -68,8 +68,15 @@ fn main() {
     // Retrive all the L-system rules and axiom
     let mut rules = lsystem::SystemRules::new();
     for (to, from) in config.rules {
+        if !to.is_ascii() || !from.is_ascii() {
+            panic!("Only ASCII character are allowed (non ASCII found in the config file)");
+        }
         rules.add_rule(to as u8, from.as_bytes().to_vec());
     }
+    if !config.axiom.is_ascii() {
+        panic!("Only ASCII character are allowed (non ASCII found in the config file)");
+    }
+    
     let axiom = config.axiom.as_bytes().to_vec();
     let generations = matches.value_of("GENERATIONS").unwrap().parse().unwrap();
     let mut system_generations = lsystem::LSystem::new(axiom, generations);
