@@ -3,7 +3,8 @@
 
 // TODO:
 // Invisible forward
-// Draw point
+// Draw point on turtle position
+// Line widths (I think we havo to switch line drawing algorithm)
 // Make the user choose the number of still frames at the end of the video with a cli parameter
 // Maybe use macros to autogenerate &str -> Variable -> &mut self.xyz
 
@@ -76,7 +77,7 @@ fn main() {
     if !config.axiom.is_ascii() {
         panic!("Only ASCII character are allowed (non ASCII found in the config file)");
     }
-    
+
     let axiom = config.axiom.as_bytes().to_vec();
     let generations = matches.value_of("GENERATIONS").unwrap().parse().unwrap();
     let mut system_generations = lsystem::LSystem::new(axiom, generations);
