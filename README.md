@@ -6,6 +6,8 @@ ffmpeg -r 60 -i images/out%d.png output.mp4
 
 The LSystem generator is made to occupy as little memory as possible, so it can run on limited devices too.
 
+Contributions are welcome and at the start of `src/main.rs` you can find a TODO list.
+
 ## Usage
 You can build the project with `cargo`
 ```
@@ -59,3 +61,12 @@ commands:
   * `push_stack` pushed the current turtle state on the stack
   * `pop_stack` pops the stack on the current turtle state
   * `add`/`multiply`/`set` are functions which take two arguments, the variable to change and the value to apply. A variable can also be used as a value: `add turning_angle step` adds the value of step to the turning_angle. An integer can also handle operations with a decimal number (`multiply color_r 1.5`), being rounded toward -infinity after the calculations.
+  
+## Lystem in action
+![from configs/board.yml](gifs/board.gif)
+
+![from configs/crystal.yml](gifs/crystal.gif)
+
+![from configs/maze.yml (this one is not a gif)](gifs/maze.png)
+
+![from configs/tree.yml (this one is not a gif either)](gifs/tree.png)

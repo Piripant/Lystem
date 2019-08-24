@@ -20,7 +20,7 @@ commands:
   ']':
     - pop_stack
     # by doing this we are making the branches lean like they have wind blowing
-    - add turning_angle 4
+    # - add turning_angle 4
   '+':
     - clockwise
   '-': 

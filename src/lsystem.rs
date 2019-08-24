@@ -105,7 +105,7 @@ impl LSystem {
             sys = future;
         }
 
-        self.increment(&lens);
+        self.increment(&lengths);
         Some(sys)
     }
 }
